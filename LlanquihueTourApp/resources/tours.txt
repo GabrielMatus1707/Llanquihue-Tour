@@ -1,7 +1,0 @@
-Ruta Gastronómica del Lago;gastronomico;45000
-Paseo Lacustre Llanquihue;lacustre;32000
-Tour Cultural Frutillar;cultural;28000
-Excursión Volcán Osorno;aventura;75000
-Tour Chiloé Mágico;cultural;55000
-Kayak en Lago Todos los Santos;aventura;40000
-Ruta de la Cerveza Artesanal;gastronomico;35000
