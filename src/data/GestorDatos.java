@@ -1,5 +1,8 @@
 package data;
 
+import model.Guia;
+import model.Operador;
+import model.PaqueteTuristico;
 import model.Tour;
 
 import java.io.BufferedReader;
@@ -8,54 +11,143 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Clase responsable de leer el archivo de datos y cargar los objetos Tour
- * en un ArrayList.
+ * Clase responsable de leer archivos de datos y cargar objetos en colecciones.
+ * Semana 5: se agregó carga de Guia, Operador y PaqueteTuristico.
+ * El archivo tours.txt original se mantiene compatible.
  */
 public class GestorDatos {
 
-    /**
-     * Lee el archivo tours.txt línea por línea, separa los campos con ";"
-     * y crea objetos Tour que almacena en un ArrayList.
-     *
-     * @param rutaArchivo Ruta al archivo .txt con los datos
-     * @return ArrayList con todos los objetos Tour creados
-     */
+    // ── Tours (archivo original, ahora con id y duracion) ──────────────
     public ArrayList<Tour> cargarTours(String rutaArchivo) {
-
-        // Lista donde se almacenarán los objetos Tour
-        ArrayList<Tour> listaTours = new ArrayList<>();
-
-        try {
-            // Abrimos el archivo para leerlo línea por línea
-            BufferedReader lector = new BufferedReader(new FileReader(rutaArchivo));
+        ArrayList<Tour> lista = new ArrayList<>();
+        try (BufferedReader lector = new BufferedReader(new FileReader(rutaArchivo))) {
             String linea;
-
-            // Recorremos cada línea del archivo
+            lector.readLine(); // saltar encabezado
             while ((linea = lector.readLine()) != null) {
-
-                // Separamos los campos usando ";" como delimitador
+                if (linea.isBlank()) continue;
                 String[] campos = linea.split(";");
-
-                // Verificamos que la línea tenga exactamente 3 campos
-                if (campos.length == 3) {
-                    String nombre = campos[0];
-                    String tipo = campos[1];
-                    int precio = Integer.parseInt(campos[2]);
-
-                    // Creamos el objeto Tour y lo agregamos a la lista
-                    Tour tour = new Tour(nombre, tipo, precio);
-                    listaTours.add(tour);
+                if (campos.length == 5) {
+                    int id           = Integer.parseInt(campos[0].trim());
+                    String nombre    = campos[1].trim();
+                    String tipo      = campos[2].trim();
+                    int precio       = Integer.parseInt(campos[3].trim());
+                    int duracion     = Integer.parseInt(campos[4].trim());
+                    lista.add(new Tour(id, nombre, tipo, precio, duracion));
                 }
             }
-
-            lector.close(); // Cerramos el archivo al terminar
-
+            System.out.println("  ✔ " + lista.size() + " tours cargados.");
         } catch (IOException e) {
-            System.out.println("Error al leer el archivo: " + e.getMessage());
+            System.out.println("  ✘ Error al leer tours: " + e.getMessage());
         } catch (NumberFormatException e) {
-            System.out.println("Error en el formato del precio: " + e.getMessage());
+            System.out.println("  ✘ Error de formato en tours: " + e.getMessage());
         }
+        return lista;
+    }
 
-        return listaTours;
+    // ── Guías ──────────────────────────────────────────────────────────
+    public ArrayList<Guia> cargarGuias(String rutaArchivo) {
+        ArrayList<Guia> lista = new ArrayList<>();
+        try (BufferedReader lector = new BufferedReader(new FileReader(rutaArchivo))) {
+            String linea;
+            lector.readLine();
+            while ((linea = lector.readLine()) != null) {
+                if (linea.isBlank()) continue;
+                String[] c = linea.split(";");
+                if (c.length == 5) {
+                    lista.add(new Guia(
+                        Integer.parseInt(c[0].trim()),
+                        c[1].trim(), c[2].trim(), c[3].trim(),
+                        Integer.parseInt(c[4].trim())
+                    ));
+                }
+            }
+            System.out.println("  ✔ " + lista.size() + " guías cargados.");
+        } catch (IOException e) {
+            System.out.println("  ✘ Error al leer guias: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("  ✘ Error de formato en guias: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    // ── Operadores ─────────────────────────────────────────────────────
+    public ArrayList<Operador> cargarOperadores(String rutaArchivo) {
+        ArrayList<Operador> lista = new ArrayList<>();
+        try (BufferedReader lector = new BufferedReader(new FileReader(rutaArchivo))) {
+            String linea;
+            lector.readLine();
+            while ((linea = lector.readLine()) != null) {
+                if (linea.isBlank()) continue;
+                String[] c = linea.split(";");
+                if (c.length == 4) {
+                    lista.add(new Operador(
+                        Integer.parseInt(c[0].trim()),
+                        c[1].trim(), c[2].trim(), c[3].trim()
+                    ));
+                }
+            }
+            System.out.println("  ✔ " + lista.size() + " operadores cargados.");
+        } catch (IOException e) {
+            System.out.println("  ✘ Error al leer operadores: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("  ✘ Error de formato en operadores: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    // ── Paquetes (referencia a IDs de tour, guia y operador) ───────────
+    public ArrayList<PaqueteTuristico> cargarPaquetes(String rutaArchivo,
+                                                       ArrayList<Tour> tours,
+                                                       ArrayList<Guia> guias,
+                                                       ArrayList<Operador> operadores) {
+        ArrayList<PaqueteTuristico> lista = new ArrayList<>();
+        try (BufferedReader lector = new BufferedReader(new FileReader(rutaArchivo))) {
+            String linea;
+            lector.readLine();
+            while ((linea = lector.readLine()) != null) {
+                if (linea.isBlank()) continue;
+                String[] c = linea.split(";");
+                if (c.length == 6) {
+                    int id       = Integer.parseInt(c[0].trim());
+                    String nombre= c[1].trim();
+                    int idTour   = Integer.parseInt(c[2].trim());
+                    int idGuia   = Integer.parseInt(c[3].trim());
+                    int idOp     = Integer.parseInt(c[4].trim());
+                    int cupo     = Integer.parseInt(c[5].trim());
+
+                    Tour t    = buscarTour(tours, idTour);
+                    Guia g    = buscarGuia(guias, idGuia);
+                    Operador o= buscarOperador(operadores, idOp);
+
+                    if (t != null && g != null && o != null) {
+                        lista.add(new PaqueteTuristico(id, nombre, t, g, o, cupo));
+                    } else {
+                        System.out.println("  ✘ Paquete ID " + id + ": referencia no encontrada.");
+                    }
+                }
+            }
+            System.out.println("  ✔ " + lista.size() + " paquetes cargados.");
+        } catch (IOException e) {
+            System.out.println("  ✘ Error al leer paquetes: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("  ✘ Error de formato en paquetes: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    // ── Helpers privados ───────────────────────────────────────────────
+    private Tour buscarTour(ArrayList<Tour> lista, int id) {
+        for (Tour t : lista) if (t.getId() == id) return t;
+        return null;
+    }
+
+    private Guia buscarGuia(ArrayList<Guia> lista, int id) {
+        for (Guia g : lista) if (g.getId() == id) return g;
+        return null;
+    }
+
+    private Operador buscarOperador(ArrayList<Operador> lista, int id) {
+        for (Operador o : lista) if (o.getId() == id) return o;
+        return null;
     }
 }

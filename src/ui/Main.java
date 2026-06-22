@@ -1,66 +1,59 @@
 package ui;
 
 import data.GestorDatos;
+import model.Guia;
+import model.Operador;
+import model.PaqueteTuristico;
 import model.Tour;
+import service.GestorTour;
 
 import java.util.ArrayList;
 
 /**
- * Clase principal del sistema de gestión de tours de Llanquihue Tour.
- * Carga los tours desde un archivo, los recorre y filtra según condiciones.
+ * Clase principal del sistema de gestión de Llanquihue Tour.
+ * Semana 5: se amplió con nuevas entidades, paquete service y composición.
+ * Se mantiene la lógica original de Semana 3 (filtros por tipo y precio).
  */
 public class Main {
 
     public static void main(String[] args) {
 
-        // --- Paso 1: Cargar los datos desde el archivo ---
+        System.out.println("╔══════════════════════════════════════════════╗");
+        System.out.println("║      LLANQUIHUE TOUR - Sistema de Gestión    ║");
+        System.out.println("║               Versión Semana 5               ║");
+        System.out.println("╚══════════════════════════════════════════════╝");
+        System.out.println("\nCargando datos desde archivos...\n");
+
+        // --- Carga de datos desde archivos --------------------------------
         GestorDatos gestor = new GestorDatos();
-        ArrayList<Tour> tours = gestor.cargarTours("resources/tours.txt");
 
-        // --- Paso 2: Recorrido - mostrar todos los tours ---
-        System.out.println("===== CATÁLOGO COMPLETO DE TOURS =====");
-        for (Tour tour : tours) {
-            System.out.println(tour);
-        }
+        ArrayList<Tour>             tours      = gestor.cargarTours("resources/tours.txt");
+        ArrayList<Guia>             guias      = gestor.cargarGuias("resources/guias.txt");
+        ArrayList<Operador>         operadores = gestor.cargarOperadores("resources/operadores.txt");
+        ArrayList<PaqueteTuristico> paquetes   = gestor.cargarPaquetes("resources/paquetes.txt",
+                                                                        tours, guias, operadores);
 
-        // --- Paso 3: Filtrado por tipo "cultural" ---
-        System.out.println("\n===== TOURS CULTURALES =====");
-        ArrayList<Tour> toursCulturales = new ArrayList<>();
+        // --- Gestor de operaciones ----------------------------------------
+        GestorTour gestorTour = new GestorTour(tours, guias, operadores, paquetes);
 
-        for (Tour tour : tours) {
-            if (tour.getTipo().equalsIgnoreCase("cultural")) {
-                toursCulturales.add(tour);
-            }
-        }
+        // --- Paso 1: Mostrar todos los registros --------------------------
+        gestorTour.mostrarTours();
+        gestorTour.mostrarGuias();
+        gestorTour.mostrarOperadores();
+        gestorTour.mostrarPaquetes();
 
-        // Mostrar resultados del filtro por tipo
-        if (toursCulturales.isEmpty()) {
-            System.out.println("No se encontraron tours culturales.");
-        } else {
-            for (Tour tour : toursCulturales) {
-                System.out.println(tour);
-            }
-        }
+        // --- Paso 2: Filtros (continuación desde Semana 3) ----------------
+        System.out.println("\n══════════════ FILTROS ══════════════");
+        gestorTour.filtrarToursPorTipo("cultural");
+        gestorTour.filtrarToursPorPrecioMayor(40000);
+        gestorTour.filtrarGuiasPorExperiencia(5);
 
-        // --- Paso 4: Filtrado por precio mayor a 40000 ---
-        System.out.println("\n===== TOURS CON PRECIO MAYOR A $40.000 =====");
-        ArrayList<Tour> toursPremium = new ArrayList<>();
+        // --- Paso 3: Búsqueda por nombre ----------------------------------
+        System.out.println("\n══════════════ BÚSQUEDAS ══════════════");
+        gestorTour.buscarTourPorNombre("Lago");
 
-        for (Tour tour : tours) {
-            if (tour.getPrecio() > 40000) {
-                toursPremium.add(tour);
-            }
-        }
-
-        // Mostrar resultados del filtro por precio
-        if (toursPremium.isEmpty()) {
-            System.out.println("No se encontraron tours con ese precio.");
-        } else {
-            for (Tour tour : toursPremium) {
-                System.out.println(tour);
-            }
-        }
-
-        System.out.println("\n===== FIN DEL SISTEMA =====");
+        System.out.println("\n╔══════════════════════════════════════════════╗");
+        System.out.println("║          Sistema finalizado con éxito.       ║");
+        System.out.println("╚══════════════════════════════════════════════╝");
     }
 }
