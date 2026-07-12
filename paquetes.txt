@@ -1,6 +1,0 @@
-id;nombre;tipoServicio;contacto
-1;TransLago S.A.;Transporte lacustre;translago@gmail.com
-2;Buses Llanquihue;Transporte terrestre;busllanq@gmail.com
-3;Rutas del Sur Ltda.;Excursiones combinadas;rutassur@gmail.com
-4;Náutica Frutillar;Navegación y tours;nautica@gmail.com
-5;Cultura Osorno;Turismo cultural;culturaos@gmail.com
