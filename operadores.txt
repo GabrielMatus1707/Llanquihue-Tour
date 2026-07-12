@@ -1,6 +1,0 @@
-id;nombre;especialidad;telefono;experienciaAnios
-1;Carlos Mansilla;Rutas gastronómicas;+56912345678;8
-2;María Fernanda Rojas;Paseos lacustres;+56923456789;5
-3;Andrés Villalobos;Excursiones culturales;+56934567890;12
-4;Camila Torres;Rutas gastronómicas;+56945678901;3
-5;Jorge Espinoza;Senderismo y aventura;+56956789012;10
