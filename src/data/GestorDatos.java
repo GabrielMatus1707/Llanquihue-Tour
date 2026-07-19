@@ -1,5 +1,7 @@
 package data;
 
+import exception.RutInvalidoException;
+import model.Cliente;
 import model.Guia;
 import model.Operador;
 import model.PaqueteTuristico;
@@ -13,6 +15,8 @@ import java.util.ArrayList;
 /**
  * Clase responsable de leer archivos de datos y cargar objetos en colecciones.
  * Semana 5: se agregó carga de Guia, Operador y PaqueteTuristico.
+ * EFT (Semana 9): se agregó carga de Cliente, con manejo de la excepción
+ * personalizada RutInvalidoException fila por fila.
  * El archivo tours.txt original se mantiene compatible.
  */
 public class GestorDatos {
@@ -131,6 +135,32 @@ public class GestorDatos {
             System.out.println("  ✘ Error al leer paquetes: " + e.getMessage());
         } catch (Exception e) {
             System.out.println("  ✘ Error de formato en paquetes: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    // ── Clientes (EFT Semana 9) ──────────────────────────────────────────
+    public ArrayList<Cliente> cargarClientes(String rutaArchivo) {
+        ArrayList<Cliente> lista = new ArrayList<>();
+        try (BufferedReader lector = new BufferedReader(new FileReader(rutaArchivo))) {
+            String linea;
+            lector.readLine(); // saltar encabezado
+            int numeroFila = 1;
+            while ((linea = lector.readLine()) != null) {
+                numeroFila++;
+                if (linea.isBlank()) continue;
+                String[] c = linea.split(";");
+                if (c.length != 4) continue;
+                try {
+                    Cliente cliente = new Cliente(c[1].trim(), c[2].trim(), c[0].trim(), c[3].trim());
+                    lista.add(cliente);
+                } catch (RutInvalidoException e) {
+                    System.out.println("  ✘ Fila " + numeroFila + " de clientes.txt omitida: " + e.getMessage());
+                }
+            }
+            System.out.println("  ✔ " + lista.size() + " clientes cargados.");
+        } catch (IOException e) {
+            System.out.println("  ✘ Error al leer clientes: " + e.getMessage());
         }
         return lista;
     }

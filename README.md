@@ -2,86 +2,104 @@
 
 ## Descripción general
 
-Sistema de gestión para la agencia de turismo **Llanquihue Tour**, Región de Los Lagos.  
-Proyecto incremental desarrollado en la asignatura **Desarrollo Orientado a Objetos I** – Duoc UC.
+Sistema de gestión para la agencia de turismo **Llanquihue Tour**, Región de Los Lagos.
+Prototipo modular en **Java** desarrollado de forma incremental en la asignatura
+**Desarrollo Orientado a Objetos I** – Duoc UC, hasta la **Evaluación Final Transversal (EFT)**.
+
+El sistema modela clientes, guías, operadores, vehículos, colaboradores externos,
+tours, paquetes turísticos, servicios turísticos y reservas, aplicando
+encapsulamiento, composición, colecciones (`ArrayList`, `HashMap`, `Stack`),
+herencia, polimorfismo, interfaces y excepciones personalizadas.
 
 ---
 
-## Semana 6 – Jerarquías de clases con herencia simple
+## EFT – Semana 9: sistema completo
 
-### Objetivo
-Implementar una jerarquía de clases que permita modelar distintos tipos de servicios turísticos, reutilizando atributos comunes mediante herencia y especializando cada subclase con sus propios atributos.
+### Problemáticas del caso resueltas
 
-### Clases creadas / modificadas esta semana
+| Problemática del caso | Solución implementada |
+|---|---|
+| Ausencia de categorización de personas (clientes no diferenciados) | Clase `Cliente`, que hereda de `Persona` e implementa `Registrable` |
+| Datos duplicados / sin validación de integridad (ej. RUT) | Clase `Rut` con algoritmo de Módulo 11 + excepción personalizada `RutInvalidoException` |
+| Gestión manual de reservas (correo/WhatsApp) | Clase `Reserva` (composición Cliente + PaqueteTuristico) gestionada por `GestorReservas` |
+| Poca reutilización de estructuras | Jerarquías `Persona`/`ServicioTuristico`, interfaz `Registrable`, sobrecarga de constructores en `Reserva` |
+| Falta de trazabilidad de paquetes turísticos | `PaqueteTuristico` (composición con `Tour`, `Guia`, `Operador`) + historial de reservas |
 
-| Clase | Paquete | Tipo | Descripción |
-|---|---|---|---|
-| `ServicioTuristico` | model | Superclase | Atributos comunes: `nombre` y `duracionHoras` |
-| `RutaGastronomica` | model | Subclase | Hereda de `ServicioTuristico`; agrega `numeroDeParadas` |
-| `PaseoLacustre` | model | Subclase | Hereda de `ServicioTuristico`; agrega `tipoEmbarcacion` |
-| `ExcursionCultural` | model | Subclase | Hereda de `ServicioTuristico`; agrega `lugarHistorico` |
-| `GestorServicios` | data | Clase de datos | Crea 2 instancias de prueba de cada subclase |
-| `Main` | ui | Clase principal | Muestra todos los servicios por consola vía `toString()` |
+### Clases e interfaces nuevas de la EFT
 
-### Jerarquía de herencia
+| Clase / Interfaz | Paquete | Descripción |
+|---|---|---|
+| `RutInvalidoException` | exception | Excepción personalizada (checked) para RUT inválido |
+| `Rut` | model | Valida y formatea un RUT chileno (Módulo 11); composición dentro de `Cliente` |
+| `Cliente` | model | Hereda de `Persona`, implementa `Registrable`; agrega `rut` y `email` |
+| `Reserva` | model | Composición de `Cliente` + `PaqueteTuristico`; **constructores sobrecargados** (con/sin número de personas) |
+| `GestorReservas` | data | Usa `HashMap<String, Cliente>` (búsqueda de cliente por RUT), `ArrayList<Reserva>` (historial) y `Stack<Reserva>` (deshacer/cancelar la última reserva) |
 
-```
-ServicioTuristico          (superclase)
-├── RutaGastronomica       → atributo propio: numeroDeParadas
-├── PaseoLacustre          → atributo propio: tipoEmbarcacion
-└── ExcursionCultural      → atributo propio: lugarHistorico
-```
+`GestorDatos` se extendió con `cargarClientes()`, que lee `clientes.txt` y captura
+`RutInvalidoException` fila por fila sin detener la carga del resto del archivo.
+`EntidadesGUI` se extendió con las opciones **Ingresar Cliente**, **Registrar Reserva**
+y **Cancelar última reserva**, y `Cliente` se integra a la misma colección
+polimórfica `ArrayList<Registrable>` que ya usaban guías, vehículos y colaboradores.
 
-Cada subclase usa `super(nombre, duracionHoras)` en su constructor y sobrescribe `toString()`.
+### Estructuras de datos utilizadas (Paso 3 de la pauta)
 
----
+- `ArrayList`: tours, guías, operadores, paquetes, clientes, servicios, entidades registrables, historial de reservas.
+- `HashMap<String, Cliente>`: búsqueda de clientes por RUT en tiempo O(1), evitando duplicados.
+- `Stack<Reserva>`: pila de las últimas reservas, usada para cancelar/deshacer la más reciente.
 
-## Semana 8 – Interfaces, polimorfismo y estructuras dinámicas
-
-### Objetivo
-Ampliar el sistema para gestionar nuevas entidades (guías turísticos, vehículos, colaboradores externos) mediante un contrato de comportamiento común (interfaz `Registrable`), aplicando herencia, polimorfismo, validación de tipos con `instanceof` y una interfaz gráfica básica de ingreso y visualización.
-
-### Clases e interfaces creadas esta semana
-
-| Clase / Interfaz | Paquete | Tipo | Descripción |
-|---|---|---|---|
-| `Registrable` | model | Interfaz | Declara el método `mostrarResumen()`; contrato común de todas las entidades gestionables |
-| `Persona` | model | Clase abstracta | Superclase con atributos comunes `nombre` y `telefono` |
-| `GuiaTuristico` | model | Subclase | Hereda de `Persona`, implementa `Registrable`; agrega `especialidad` y `experienciaAnios` |
-| `ColaboradorExterno` | model | Subclase | Hereda de `Persona`, implementa `Registrable`; agrega `empresa` y `servicioPrestado` |
-| `Vehiculo` | model | Clase | Implementa `Registrable` directamente (no es una `Persona`); agrega `patente`, `tipo` y `capacidad` |
-| `GestorEntidades` | data | Clase de datos | Colección `ArrayList<Registrable>`; recorre con for-each y usa `instanceof` para diferenciar tipos |
-| `EntidadesGUI` | ui | Interfaz gráfica | GUI con `JOptionPane` para ingresar y visualizar guías, vehículos y colaboradores |
-| `Main` | ui | Clase principal | Muestra los servicios turísticos (S6) y luego abre `EntidadesGUI` |
-
-### Jerarquía de interfaces y herencia (Semana 8)
+### Jerarquías, interfaces y polimorfismo (Paso 4 de la pauta)
 
 ```
 Registrable                 (interfaz → mostrarResumen())
         ▲
         │ implementa
 Persona                     (clase abstracta: nombre, telefono)
-├── GuiaTuristico            → implementa Registrable; atributos: especialidad, experienciaAnios
-└── ColaboradorExterno       → implementa Registrable; atributos: empresa, servicioPrestado
+├── GuiaTuristico            → especialidad, experienciaAnios
+├── ColaboradorExterno       → empresa, servicioPrestado
+└── Cliente                  → rut (Rut), email                (nueva EFT)
 
-Vehiculo                     → implementa Registrable directamente (patente, tipo, capacidad)
+Vehiculo                     → implementa Registrable directamente
+
+ServicioTuristico            (superclase: nombre, duracionHoras)
+├── RutaGastronomica         → numeroDeParadas
+├── PaseoLacustre            → tipoEmbarcacion
+└── ExcursionCultural        → lugarHistorico
 ```
 
-`GestorEntidades` almacena todas estas clases en una única colección `ArrayList<Registrable>` y usa `instanceof` para diferenciar el tipo concreto de cada objeto al recorrerla.
+`GestorEntidades` almacena `Cliente`, `GuiaTuristico`, `Vehiculo` y `ColaboradorExterno`
+en una única colección `ArrayList<Registrable>`, y usa `instanceof` para diferenciar
+el tipo concreto de cada objeto al recorrerla.
+
+---
+
+## Historial de semanas anteriores
+
+### Semana 6 – Jerarquías de clases con herencia simple
+`ServicioTuristico` como superclase y `RutaGastronomica`, `PaseoLacustre`,
+`ExcursionCultural` como subclases, cada una usando `super()` y sobrescribiendo `toString()`.
+
+### Semana 8 – Interfaces, polimorfismo y estructuras dinámicas
+Interfaz `Registrable`, clase abstracta `Persona`, subclases `GuiaTuristico` y
+`ColaboradorExterno`, clase `Vehiculo` (implementa `Registrable` directamente),
+`GestorEntidades` con `ArrayList<Registrable>` e `instanceof`, y GUI `EntidadesGUI`
+con `JOptionPane`.
 
 ---
 
 ## Estructura del proyecto
 
 ```
-Llanquihue-Tour/
+Llanquihue-Tour-S9/
 ├── src/
 │   ├── model/
-│   │   ├── Registrable.java         ← interfaz         (nueva S8)
-│   │   ├── Persona.java             ← clase abstracta  (nueva S8)
-│   │   ├── GuiaTuristico.java       ← subclase         (nueva S8)
-│   │   ├── ColaboradorExterno.java  ← subclase         (nueva S8)
-│   │   ├── Vehiculo.java            ← implementa Registrable (nueva S8)
+│   │   ├── Rut.java                 ← nueva EFT
+│   │   ├── Cliente.java             ← nueva EFT
+│   │   ├── Reserva.java             ← nueva EFT
+│   │   ├── Registrable.java         (S8)
+│   │   ├── Persona.java             (S8)
+│   │   ├── GuiaTuristico.java       (S8)
+│   │   ├── ColaboradorExterno.java  (S8)
+│   │   ├── Vehiculo.java            (S8)
 │   │   ├── ServicioTuristico.java   (S6)
 │   │   ├── RutaGastronomica.java    (S6)
 │   │   ├── PaseoLacustre.java       (S6)
@@ -90,38 +108,52 @@ Llanquihue-Tour/
 │   │   ├── Guia.java                (S5)
 │   │   ├── Operador.java            (S5)
 │   │   └── PaqueteTuristico.java    (S5)
+│   ├── exception/
+│   │   └── RutInvalidoException.java ← nueva EFT
 │   ├── data/
-│   │   ├── GestorEntidades.java     ← colección Registrable (nueva S8)
+│   │   ├── GestorReservas.java      ← nueva EFT (HashMap + Stack)
+│   │   ├── GestorEntidades.java     (S8)
 │   │   ├── GestorServicios.java     (S6)
-│   │   └── GestorDatos.java         (S5)
+│   │   └── GestorDatos.java         (S5, extendido con cargarClientes)
 │   ├── service/
 │   │   └── GestorTour.java          (S5)
 │   └── ui/
-│       ├── EntidadesGUI.java        ← GUI con JOptionPane (nueva S8)
-│       └── Main.java                ← actualizada S8
+│       ├── EntidadesGUI.java        (S8, extendida con Cliente/Reserva)
+│       └── Main.java                (actualizada EFT)
 └── resources/
     ├── tours.txt
     ├── guias.txt
     ├── operadores.txt
-    └── paquetes.txt
+    ├── paquetes.txt
+    └── clientes.txt                 ← nuevo EFT
 ```
 
 ---
 
-## Instrucciones para ejecutar
+## Instrucciones para clonar y ejecutar
 
 ### Requisitos
-- Java JDK 11 o superior
+- Java JDK 17 o superior
 - IntelliJ IDEA (recomendado)
+
+### Clonar
+```bash
+git clone <URL-del-repositorio>
+```
 
 ### En IntelliJ IDEA
 1. Abre la carpeta del proyecto.
 2. Marca `src/` como **Sources Root**.
 3. Ejecuta la clase `ui.Main`.
-4. El programa primero muestra por consola el listado de servicios turísticos y luego abre la ventana de gestión de entidades (`EntidadesGUI`), donde puedes ingresar guías, vehículos y colaboradores, y ver el resumen de todos los registrados.
+4. El programa primero carga y muestra por consola los datos desde los archivos
+   `.txt` (tours, guías, operadores, paquetes, clientes), luego muestra el
+   listado de servicios turísticos y las reservas de ejemplo, y finalmente abre
+   la ventana de gestión (`EntidadesGUI`), donde puedes ingresar guías,
+   vehículos, colaboradores y clientes, registrar y cancelar reservas, y ver
+   los resúmenes generados.
 
 ### Desde consola
 ```bash
-javac -encoding UTF-8 -d out src/model/*.java src/data/*.java src/service/*.java src/ui/*.java
+javac -encoding UTF-8 -d out $(find src -name "*.java")
 java -cp out ui.Main
 ```

@@ -1,5 +1,6 @@
 package data;
 
+import model.Cliente;
 import model.ColaboradorExterno;
 import model.GuiaTuristico;
 import model.Registrable;
@@ -41,7 +42,7 @@ public class GestorEntidades {
             return;
         }
 
-        int guias = 0, vehiculos = 0, colaboradores = 0, otros = 0;
+        int guias = 0, vehiculos = 0, colaboradores = 0, clientes = 0, otros = 0;
 
         for (Registrable entidad : entidades) {
             System.out.println("  " + entidad.mostrarResumen());
@@ -52,6 +53,8 @@ public class GestorEntidades {
                 vehiculos++;
             } else if (entidad instanceof ColaboradorExterno) {
                 colaboradores++;
+            } else if (entidad instanceof Cliente) {
+                clientes++;
             } else {
                 otros++;
             }
@@ -61,6 +64,7 @@ public class GestorEntidades {
         System.out.println("  Guías turísticos   : " + guias);
         System.out.println("  Vehículos          : " + vehiculos);
         System.out.println("  Colaboradores ext. : " + colaboradores);
+        System.out.println("  Clientes           : " + clientes);
         if (otros > 0) System.out.println("  Otros              : " + otros);
     }
 

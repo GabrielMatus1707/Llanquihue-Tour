@@ -1,0 +1,7 @@
+rut;nombre;telefono;email
+12345678-5;Fernanda Muñoz;+56911112222;fmunoz@gmail.com
+9876543-3;Rodrigo Paredes;+56922223333;rparedes@gmail.com
+15234567-4;Valentina Soto;+56933334444;vsoto@gmail.com
+8765432-K;Ignacio Herrera;+56944445555;iherrera@gmail.com
+20123456-5;Camila Bravo;+56955556666;cbravo@gmail.com
+17890123-0;Matías Contreras;+56966667777;mcontreras@gmail.com
